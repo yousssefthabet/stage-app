@@ -1,0 +1,43 @@
+export type Regelement = {
+  id: string;
+  factureId: string;
+  reference: string;
+  montant: number;
+  mode: string;
+  statut: string;
+  dateReglement: string | null;
+  note: string | null;
+  echeanceReglement: string | null;
+  numeroCheque: string | null;
+  commissionMandataireId: string | null;
+  rejetPrelevement: boolean;
+  fraisRejet: number | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export type Facture = {
+  id: string;
+  numero: string;
+  templateId: string | null;
+  typeId: string | null;
+  clientType: string;
+  clientId: string | null;
+  sourceType: string;
+  sourceId: string | null;
+  typeDocument: string;
+  totalHt: number | null;
+  totalTtc: number | null;
+  statut: string | null;
+  dateEnvoieFacture: string | null;
+  dateEcheance: string | null;
+  datePreavis: string | null;
+  body: string | null;
+  bonCommandeNum: string | null;
+  banqueId: string | null;
+  etablissementBancaireId: string | null;
+  interlocuteurId: string | null;
+  reglements: Regelement[];
+  createdAt: string | null;
+  updatedAt: string | null;
+};

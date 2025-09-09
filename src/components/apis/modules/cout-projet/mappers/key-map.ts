@@ -1,0 +1,35 @@
+import { type ApplicationProjectCostRequest } from "@/apis/modules/cout-projet/types/application-project-cost-request.type";
+
+export const keyMap: Record<
+  string,
+  keyof ApplicationProjectCostRequest | (keyof ApplicationProjectCostRequest)[]
+> = {
+  apport: "apport",
+  terrain: "terrain",
+  viabilisation: "viabilisation",
+  logement: "logemet",
+  travaux: "travaux",
+  mobilier: "mobilier",
+  frais_etablissement: "etablissement",
+  expertise: "expertise",
+  agence: "agence",
+  crd_refinance: "crdRefinance",
+  frais_notaire: "notaire",
+  finance_speciaux: "financeSpeciaux",
+  frais_courtage: "courtage",
+  cout_total: "rmTotal",
+  apport_disponible: "apportDisponible",
+  ml_existants: "mlExistants",
+  ml_persistants: "mlPersistants",
+  ml_persistants_revenu: "mlPersistantsRevenu",
+  rfN1: "rfN1",
+  rfN2: "rfN2",
+  indemnite_ra: "indemiteRa",
+  soulte: "soulte",
+  tresorerie: "tresorie",
+  pret_rachate: "pretRachete",
+  frais_levee_hypo: "frLeveHypo",
+  date_relev: "dateRelev",
+  decouvert_blanc: "decouvertBlanc",
+  courtage_manually: "courtageManually",
+};

@@ -1,0 +1,34 @@
+import { type Commission } from "./commission-types";
+import { type Parrainage } from "./Parrainage";
+import { type Role } from "./role-types";
+import { type PhoneNumber } from "./UserPhoneNumber-types";
+
+export type User = {
+  id: bigint;
+  avatar: string;
+  gender?: "MALE" | "FEMALE";
+  civilite?: "M" | "ME";
+  category?: "PERSONNE_PHYSIQUE" | "PERSONNE_MORALE";
+  userPhoto?: string | null;
+  email?: string | null;
+  username?: string | null;
+  confirmed?: boolean;
+  active?: boolean;
+  identifiantIframeApporteur?: string | null;
+  lastSeenAt?: Date | null;
+  calendlyUrl?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  firstName?: string | null;
+  lastName?: string | null;
+  backofficeId?: string | null;
+  commercialId?: string | null;
+  levelId?: bigint | null;
+  societeId?: bigint | null;
+  roleId?: string | null;
+  Role?: Role;
+  userPhoneNumbers?: PhoneNumber[];
+  commissions?: Commission[];
+  parrainagesAsParrain?: Parrainage[];
+  parrainagesAsFilleulUser?: Parrainage[];
+};

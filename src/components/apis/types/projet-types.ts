@@ -1,0 +1,36 @@
+import { type Task } from "./header-projet-type";
+export type Projet = {
+  task: Task;
+  id: string;
+  userId: string;
+  sourceDetailId: string;
+  operationTypeId: string;
+  originId: string | null;
+  durationInYears: number;
+  isFakeApplication: boolean;
+  isDuplicateApplication: boolean;
+  isFromForm: boolean;
+  isLocked: boolean;
+  isCompanyCredit: boolean;
+  isAccountKeepingVerified: boolean;
+  withBien: boolean;
+  clientUserId: string | null;
+  apporteurId: string | null;
+  backofficeId: string | null;
+  commercialeId: string | null;
+  assistanteId: string | null;
+  ownerId: string | null;
+  preteurId: string | null;
+  preferencesId: string | null;
+  typeOperationAssuranceId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  applicationInstructionId: string | null;
+  typeSourceId: string;
+  applicationCustomers: {
+    applicationId: string;
+    customerId: string;
+    customerType: string;
+  }[];
+};
