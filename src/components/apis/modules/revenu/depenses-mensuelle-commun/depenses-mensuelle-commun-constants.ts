@@ -1,1 +1,0 @@
-export const DepensesMensuelleCommunKey = ["DepensesMensuelleCommun"];
