@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import PeriodDropdown from "../../components/PeriodDropdown";
+import React, { useState, type ComponentProps } from "react";
+import PeriodDropdown from "../statprojets/PeriodDropdown";
 
 import {
   ResponsiveContainer,
@@ -17,11 +17,9 @@ import {
   Trapezoid,
 } from "recharts";
 
-
+/* --- data --- */
 const rawFunnel = [
   { name: "Nouveaux leads", value: 95, fill: "#D66D6B" },
-  
- 
   { name: "En banque", value: 20, fill: "#F97316" },
 ];
 
@@ -30,20 +28,32 @@ const funnelData = rawFunnel
   .map((d) => ({ ...d, label: `${d.name} ${d.value}` }));
 
 const lineData = [
-  { m: "Jan", v: 3500 },  { m: "Févr.", v: 2800 }, { m: "Mars", v: 4200 },
-  { m: "Avril", v: 4100 },{ m: "Mai", v: 8200 },   { m: "Juin", v: 4600 },
-  { m: "Juil", v: 300 },  { m: "Août", v: 0 },     { m: "Sept", v: 0 },
-  { m: "Oct", v: 0 },     { m: "Nov", v: 0 },      { m: "Déc.", v: 0 },
+  { m: "Jan", v: 3500 }, { m: "Févr.", v: 2800 }, { m: "Mars", v: 4200 },
+  { m: "Avril", v: 4100 }, { m: "Mai", v: 8200 }, { m: "Juin", v: 4600 },
+  { m: "Juil", v: 300 }, { m: "Août", v: 0 }, { m: "Sept", v: 0 },
+  { m: "Oct", v: 0 }, { m: "Nov", v: 0 }, { m: "Déc.", v: 0 },
 ];
 
+/** ---------- typing the shape props ----------
+ * We derive the prop type from Trapezoid and add the payload we use.
+ * This avoids 'any' and works across Recharts versions.
+ */
+type TrapezoidPropsFromLib = ComponentProps<typeof Trapezoid>;
+type FunnelShapeProps = TrapezoidPropsFromLib & {
+  payload?: { name?: string };
+  upperWidth?: number;
+  topWidth?: number;
+  lowerWidth?: number;
+  bottomWidth?: number;
+};
 
-const RectOnlyForSome = (props) => {
-  const name = props?.payload?.name;
-  const makeRect = name === "Mandat envoyé" || name === "En banque" || name === "En banque";
+const RectOnlyForSome: React.FC<FunnelShapeProps> = (props) => {
+  const name = props.payload?.name;
+  const makeRect = name === "Mandat envoyé" || name === "En banque";
 
   if (makeRect) {
-    const w = props.upperWidth ?? props.topWidth ?? 0;
-    return <Trapezoid {...props} lowerWidth={w} bottomWidth={w} />;
+    const w = (props.upperWidth ?? props.topWidth ?? 0) as number;
+    return <Trapezoid {...props} lowerWidth={w}  />;
   }
   return <Trapezoid {...props} />;
 };
@@ -71,7 +81,7 @@ export default function StatProjetsChart() {
                   data={funnelData}
                   dataKey="value"
                   nameKey="name"
-                  shape={<RectOnlyForSome />}   // <- only two will be rectangles
+                  shape={<RectOnlyForSome />} // two steps as rectangles
                   isAnimationActive={false}
                 >
                   {funnelData.map((entry, i) => (

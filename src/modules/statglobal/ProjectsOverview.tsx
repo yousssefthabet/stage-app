@@ -1,6 +1,6 @@
 // components/Stat/ProjectsOverview.jsx
 import React from "react";
-import PeriodDropdown from "../../components/PeriodDropdown";
+import PeriodDropdown from "../statglobal/PeriodDropdown";
 import {
   ResponsiveContainer,
   BarChart,
