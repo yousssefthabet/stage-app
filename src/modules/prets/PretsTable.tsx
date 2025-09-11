@@ -2,24 +2,34 @@ import React, { useState, useMemo } from "react";
 
 export default function PretsTable() {
   const data = [
-    { dateEnvoi: "2025-08-01", source: "Direct", nomCompte: "MOHAMED Moussa", detailSource: "Relation personnelle", dateCompromis: "2025-05-23", conditions: "2025-07-30", signatureNotaire: "2025-08-30", etatDDP: "Accordée", etatDossier: "Abandon" },
-    { dateEnvoi: "2025-08-05", source: "Apporteur", nomCompte: "DANELLE BAYEF", detailSource: "Relation personnelle", dateCompromis: "2025-07-09", conditions: "2025-09-08", signatureNotaire: "2025-10-02", etatDDP: "DDP envoyé", etatDossier: "Envoyé banque" },
-    { dateEnvoi: "2025-08-10", source: "Direct", nomCompte: "VINGERT Mathilde", detailSource: "Relation personnelle", dateCompromis: "2025-07-30", conditions: "2025-09-30", signatureNotaire: "2025-10-30", etatDDP: "DDP envoyé", etatDossier: "Envoyé banque" },
-    { dateEnvoi: "2025-08-11", source: "Agence", nomCompte: "Compte B", detailSource: "Détail B", dateCompromis: "2025-08-22", conditions: "Oui", signatureNotaire: "Non", etatDDP: "Reçu", etatDossier: "Terminé" },
-    { dateEnvoi: "2025-08-12", source: "Banque", nomCompte: "Compte A", detailSource: "Détail A", dateCompromis: "2025-08-25", conditions: "Aucune", signatureNotaire: "Oui", etatDDP: "Envoyé", etatDossier: "En cours" },
-    { dateEnvoi: "2025-08-13", source: "Agence", nomCompte: "Compte C", detailSource: "Détail C", dateCompromis: "2025-08-29", conditions: "Oui", signatureNotaire: "Oui", etatDDP: "Reçu", etatDossier: "Terminé" },
+    { dateEnvoi: "2025-08-01", source: "Direct",   nomCompte: "MOHAMED Moussa",  detailSource: "Relation personnelle", dateCompromis: "2025-05-23", conditions: "2025-07-30", signatureNotaire: "2025-08-30", etatDDP: "Accordée",   etatDossier: "Abandon" },
+    { dateEnvoi: "2025-08-05", source: "Apporteur",nomCompte: "DANELLE BAYEF",   detailSource: "Relation personnelle", dateCompromis: "2025-07-09", conditions: "2025-09-08", signatureNotaire: "2025-10-02", etatDDP: "DDP envoyé", etatDossier: "Envoyé banque" },
+    { dateEnvoi: "2025-08-10", source: "Direct",   nomCompte: "VINGERT Mathilde",detailSource: "Relation personnelle", dateCompromis: "2025-07-30", conditions: "2025-09-30", signatureNotaire: "2025-10-30", etatDDP: "DDP envoyé", etatDossier: "Envoyé banque" },
+    { dateEnvoi: "2025-08-11", source: "Agence",   nomCompte: "Compte B",        detailSource: "Détail B",             dateCompromis: "2025-08-22", conditions: "Oui",        signatureNotaire: "Non",        etatDDP: "Reçu",       etatDossier: "Terminé" },
+    { dateEnvoi: "2025-08-12", source: "Banque",   nomCompte: "Compte A",        detailSource: "Détail A",             dateCompromis: "2025-08-25", conditions: "Aucune",     signatureNotaire: "Oui",        etatDDP: "Envoyé",     etatDossier: "En cours" },
+    { dateEnvoi: "2025-08-13", source: "Agence",   nomCompte: "Compte C",        detailSource: "Détail C",             dateCompromis: "2025-08-29", conditions: "Oui",        signatureNotaire: "Oui",        etatDDP: "Reçu",       etatDossier: "Terminé" },
   ];
 
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const [rowsPerPage, setRowsPerPage] = useState(15); // default 15 like screenshot
+
+  const totalRows = data.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / rowsPerPage));
 
   const currentRows = useMemo(() => {
     const start = (currentPage - 1) * rowsPerPage;
     return data.slice(start, start + rowsPerPage);
-  }, [currentPage, data]);
+  }, [currentPage, rowsPerPage, data]);
 
-  const goToPage = (p:number) => p >= 1 && p <= totalPages && setCurrentPage(p);
+  const goToPage = (p: number) => p >= 1 && p <= totalPages && setCurrentPage(p);
+
+  const onChangeRowsPerPage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRowsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const startIndex = totalRows === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+  const endIndex = Math.min(currentPage * rowsPerPage, totalRows);
 
   return (
     <div className="px-5 py-6">
@@ -68,16 +78,20 @@ export default function PretsTable() {
             ))}
           </tbody>
         </table>
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-2 px-4 py-3 bg-white">
+
+        {/* Footer controls like the screenshot */}
+        <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between text-sm">
+          {/* left: total count */}
+          <div className="text-cyan-700">
+            Total dossiers : <span className="underline">{totalRows}</span>
+          </div>
+
+          {/* center: pager */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`h-8 w-8 rounded border ${
-                currentPage === 1
-                  ? "border-slate-200 text-slate-300 cursor-not-allowed"
-                  : "border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
+              className="h-8 w-8 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40"
               aria-label="Page précédente"
             >
               ‹
@@ -88,17 +102,31 @@ export default function PretsTable() {
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`h-8 w-8 rounded border ${
-                currentPage === totalPages
-                  ? "border-slate-200 text-slate-300 cursor-not-allowed"
-                  : "border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
+              className="h-8 w-8 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40"
               aria-label="Page suivante"
             >
               ›
             </button>
           </div>
-        )}
+
+          {/* right: elements per page */}
+          <div className="flex items-center gap-2 text-slate-700">
+            <span className="whitespace-nowrap">Éléments par page</span>
+            <select
+              value={rowsPerPage}
+              onChange={onChangeRowsPerPage}
+              className="h-8 min-w-[70px] rounded border border-cyan-300 bg-white px-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            >
+              {[5, 10, 15, 20, 50].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+<hr className="text-gray-200 py-1"/>
+        {/* Totals (left as static placeholders) */}
         <div className="px-4 pb-4 text-sm text-slate-700">
           <p>
             Total Honoraires: <span className="font-semibold">0.00 €</span>

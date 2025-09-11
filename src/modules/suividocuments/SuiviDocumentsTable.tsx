@@ -14,7 +14,7 @@ const DATA = [
 ];
 
 export default function SuiviDocumentsTable() {
-  const [pageSize, setPageSize] = useState(7);
+  const [pageSize, setPageSize] = useState(15); // default 15 (like your style)
   const [page, setPage] = useState(1);
 
   const total = DATA.length;
@@ -24,6 +24,12 @@ export default function SuiviDocumentsTable() {
     const start = (page - 1) * pageSize;
     return DATA.slice(start, start + pageSize);
   }, [page, pageSize]);
+
+  const startIndex = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endIndex = Math.min(page * pageSize, total);
+
+  const goPrev = () => setPage((p) => Math.max(1, p - 1));
+  const goNext = () => setPage((p) => Math.min(totalPages, p + 1));
 
   return (
     <div className="max-w-[88rem] mx-auto px-4">
@@ -78,73 +84,52 @@ export default function SuiviDocumentsTable() {
           </table>
         </div>
 
-        {/* Footer: total + pagination + page size */}
-        <div className="flex items-center justify-between px-3 py-3 border-t border-cyan-100">
-          {/* Total */}
-          <div className="text-[12px] text-cyan-700">
-            Total dossiers : <span className="font-medium">{total}</span>
+        {/* Footer: Total (left) • Pager (center) • Page size (right) */}
+        <div className="px-3 py-3 border-t border-cyan-100 flex items-center justify-between text-sm">
+          {/* left: total */}
+          <div className="text-cyan-700">
+            Total dossiers : <span className="underline">{total}</span>
           </div>
 
-          {/* Pagination (round buttons, active filled) */}
-          <div className="flex items-center gap-1">
+          {/* center: ‹ [page] › */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={goPrev}
               disabled={page === 1}
-              className="h-8 w-8 rounded-full border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-40"
+              className="h-8 w-8 rounded border border-cyan-300 bg-white text-cyan-700 hover:bg-cyan-50 disabled:opacity-40"
               aria-label="Page précédente"
             >
               ‹
             </button>
-
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const n = idx + 1;
-              const active = n === page;
-              return (
-                <button
-                  key={n}
-                  onClick={() => setPage(n)}
-                  className={[
-                    "h-8 w-8 rounded-full border transition",
-                    active
-                      ? "bg-cyan-600 text-white border-cyan-600"
-                      : "border-cyan-300 text-cyan-700 hover:bg-cyan-50",
-                  ].join(" ")}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {n}
-                </button>
-              );
-            })}
-
+            <span className="px-3 py-1 rounded bg-cyan-600 text-white">{page}</span>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={goNext}
               disabled={page === totalPages}
-              className="h-8 w-8 rounded-full border border-cyan-300 text-cyan-700 hover:bg-cyan-50 disabled:opacity-40"
+              className="h-8 w-8 rounded border border-cyan-300 bg-white text-cyan-700 hover:bg-cyan-50 disabled:opacity-40"
               aria-label="Page suivante"
             >
               ›
             </button>
           </div>
 
-          {/* Page size */}
-          <label className="flex items-center gap-2 text-[12px] text-cyan-700">
-            <span>Éléments par page</span>
+          {/* right: page size */}
+          <div className="flex items-center gap-2 text-cyan-700">
+            <span className="whitespace-nowrap text-[12px]">Éléments par page</span>
             <select
               value={pageSize}
               onChange={(e) => {
-                const val = Number(e.target.value);
-                setPageSize(val);
+                setPageSize(Number(e.target.value));
                 setPage(1);
               }}
-              className="h-8 text-sm border border-cyan-400 rounded px-2 bg-white text-gray-800 focus:outline-none focus:ring-1 focus:ring-cyan-600"
+              className="h-8 min-w-[70px] rounded border border-cyan-400 bg-white px-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-cyan-600"
             >
-              {[5, 10, 15, 25, 50].map((n) => (
+              {[5, 10, 15, 20, 50].map((n) => (
                 <option key={n} value={n}>
                   {n}
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </div>
       </div>
     </div>

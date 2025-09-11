@@ -8,29 +8,50 @@ export default function MandatsTable() {
     { source: "Direct", detail: "Ancien client",        compte: "CAGLUS Maxime",               statut: "Signé",                     honoraires: 2000, etat: "Envoyé banque" },
     { source: "Apport entrant", detail: "Web",          compte: "ARUTYUNYAN Anzhela",          statut: "Signé",                     honoraires: 1500, etat: "Instruction" },
     { source: "Direct", detail: "Relation personnelle", compte: "VINCENT Mathilde",            statut: "Signé",                     honoraires: 2500, etat: "Instruction" },
+     { source: "Direct", detail: "Ancien client",        compte: "AUBERT DE SCEPEY, Matthias", statut: "Signé",                     honoraires: 7500, etat: "Instruction" },
+    { source: "Direct", detail: "Relation personnelle", compte: "SAYAH Sabrina",               statut: "Lien de signature envoyé", honoraires: 1500, etat: "Instruction" },
+    { source: "Apporteur", detail: "ORBATTI Thibaud",   compte: "ARNAULT Claire",              statut: "Signé",                     honoraires: 2000, etat: "Instruction" },
+    { source: "Direct", detail: "Ancien client",        compte: "CAGLUS Maxime",               statut: "Signé",                     honoraires: 2000, etat: "Envoyé banque" },
+    { source: "Apport entrant", detail: "Web",          compte: "ARUTYUNYAN Anzhela",          statut: "Signé",                     honoraires: 1500, etat: "Instruction" },
+    { source: "Direct", detail: "Relation personnelle", compte: "VINCENT Mathilde",            statut: "Signé",                     honoraires: 2500, etat: "Instruction" },
   ];
 
+  // ---- pagination state
   const [page, setPage] = useState(1);
-  const rowsPerPage = 8;
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const [rowsPerPage, setRowsPerPage] = useState(15); // default 15 like the screenshot
+
+  const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
+  const totalRows = data.length;
+
+  // ensure current page is valid when rowsPerPage changes
+  const onChangeRowsPerPage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const n = Number(e.target.value);
+    setRowsPerPage(n);
+    setPage(1);
+  };
 
   const currentRows = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     return data.slice(start, start + rowsPerPage);
-  }, [page, data]);
+  }, [page, rowsPerPage, data]);
 
-  const fmtEuro0 = (n:number) =>
+  const startIndex = totalRows === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+  const endIndex = Math.min(page * rowsPerPage, totalRows);
+
+  // ---- formatting helpers
+  const fmtEuro0 = (n: number) =>
     n.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-  const fmtEuro2 = (n:number) =>
+  const fmtEuro2 = (n: number) =>
     n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 
+  // ---- totals
   const totals = useMemo(() => {
     const totalHonoraires = data.reduce((s, r) => s + (r.honoraires || 0), 0);
     const avgHonoraires = data.length ? totalHonoraires / data.length : 0;
 
-    const mandatEnvoye = data.filter((r) => /envoy/i.test(r.statut)).length; 
-    const mandatRecu = data.filter((r) => /sign|reç/i.test(r.statut)).length; 
+    const mandatEnvoye = data.filter((r) => /envoy/i.test(r.statut)).length;
+    const mandatRecu = data.filter((r) => /sign|reç/i.test(r.statut)).length;
     const taux = mandatEnvoye ? (mandatRecu / mandatEnvoye) * 100 : 0;
 
     return { avgHonoraires, mandatEnvoye, mandatRecu, taux };
@@ -83,6 +104,50 @@ export default function MandatsTable() {
             </tbody>
           </table>
         </div>
+        <div className="px-4 py-3  flex items-center justify-between text-sm">
+          {/* left: total count */}
+          <div className="text-cyan-700">
+            Total dossiers : <span className="underline">{totalRows}</span>
+          </div>
+
+          {/* center: pager */}
+          <div className="flex items-center gap-2 ">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="h-8 w-8 rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40"
+              disabled={page === 1}
+              aria-label="Page précédente"
+            >
+              ‹
+            </button>
+            <span className="px-3 py-1 rounded bg-cyan-500 text-white">{page}</span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="h-8 w-8 rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40"
+              disabled={page === totalPages}
+              aria-label="Page suivante"
+            >
+              ›
+            </button>
+          </div>
+
+          {/* right: elements per page */}
+          <div className="flex items-center gap-2 text-gray-700">
+            <span className="whitespace-nowrap">Éléments par page</span>
+            <select
+              value={rowsPerPage}
+              onChange={onChangeRowsPerPage}
+              className="h-8 min-w-[70px] rounded border border-cyan-300 bg-white px-2 text-gray-800 focus:outline-none focus:ring-1 focus:ring-cyan-400"
+            >
+              {[5, 10, 15, 20, 50].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
 
         {/* ---- TOTAL summary strip (under the table) ---- */}
         <div className="px-8 py-3 border-t border-gray-200">
@@ -111,26 +176,9 @@ export default function MandatsTable() {
           </div>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-center gap-2 text-sm">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="h-8 w-8 rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40"
-              disabled={page === 1}
-            >
-              ‹
-            </button>
-            <span className="px-3 py-1 rounded bg-cyan-500 text-white">{page}</span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="h-8 w-8 rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-40"
-              disabled={page === totalPages}
-            >
-              ›
-            </button>
-          </div>
-        )}
+        {/* ---- Footer controls (match screenshot layout) ---- */}
+        
+       
       </div>
     </div>
   );
