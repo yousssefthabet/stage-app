@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { FaWallet } from "react-icons/fa";
 
-// Types
+/* ---------- 1. Types ---------- */
 type Source = "Direct" | "Apporteur" | "2e Courtage" | "Appel entrant";
 
 type Row = {
@@ -14,31 +14,10 @@ type Row = {
   phone: string;
   email: string;
   type: string;
-  source: Source | string; // keep string to be tolerant for unknown values
+  source: string; // allow any string coming from API
 };
 
-// Demo data
-const DEMO: Row[] = [
-  { ref: "2025-3364", date: "2025-08-21 20:57:49", client: "RAYLAUD Philippe",  phone: "0629095123", email: "philippe.raylaud@hotmail.com",   type: "Achat ancien sans travaux", source: "Apporteur" },
-  { ref: "2025-3363", date: "2025-08-21 20:34:36", client: "GULSES Irma",       phone: "06 11 23 23 55", email: "irma.gulses@lafrance.fr",     type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3362", date: "2025-08-21 19:44:22", client: "CECOLOU GUGUI ARMEL",phone:"0662774425",    email: "adouou@gmail.com",            type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3361", date: "2025-08-21 18:29:42", client: "BARDON DAVID",      phone: "0647597284",   email: "david.bardon.nantes@gmail.com",type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3360", date: "2025-08-21 18:09:11", client: "COLIN Camille",     phone: "0612338761",   email: "carriecolin2510@gmail.com",    type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3359", date: "2025-08-21 08:30:11", client: "THOMAS Amina",      phone: "0801229036",   email: "amina.thomas26@live.fr",       type: "Achat ancien sans travaux", source: "Appel entrant" },
-  { ref: "2025-3358", date: "2025-08-21 12:08:13", client: "MONTELD Doriane",   phone: "0796636764",   email: "dehanoromai250@gmail.com",     type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3357", date: "2025-08-21 11:18:20", client: "MISSE PATRICK",     phone: "0691057077",   email: "patrissel@gmail.com",          type: "Achat ancien sans travaux", source: "Apporteur" },
-  { ref: "2025-3356", date: "2025-08-21 12:27:10", client: "CISSE Oumare sadio",phone: "0797578880",   email: "sadiocb@hotmail.com",          type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3355", date: "2025-08-21 10:33:50", client: "RUBBE Naia",        phone: "06 29 07 70 02",email:"naria.rubbe@yahoo.fr",          type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3354", date: "2025-08-21 11:25:59", client: "SCORFF Renaud",     phone: "0684179622",   email: "renaudscorff@gmail.com",       type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3353", date: "2025-08-21 10:55:32", client: "TARTARI Loic",      phone: "06 84 70 26 91",email:"loic.tartari@gmail.com",        type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3352", date: "2025-08-21 09:11:12", client: "BORDENAVE Luc",     phone: "0664728497",   email: "luc.bordenave@hotm.fr",         type: "Achat ancien sans travaux", source: "2e Courtage" },
-  { ref: "2025-3351", date: "2025-08-21 08:31:24", client: "KOVACEVIC Sabrina", phone: "06 87 09 33 22",email:"sabrina.kovacevic23@gmail.com",  type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3350", date: "2025-08-21 08:27:16", client: "EL KAMALY Ibou",    phone: "0685196649",   email: "thouelkamily54@gmail.com",     type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3351", date: "2025-08-21 08:31:24", client: "KOVACEVIC Sabrina", phone: "06 87 09 33 22",email:"sabrina.kovacevic23@gmail.com",  type: "Achat ancien sans travaux", source: "Direct" },
-  { ref: "2025-3350", date: "2025-08-21 08:27:16", client: "EL KAMALY Ibou",    phone: "0685196649",   email: "thouelkamily54@gmail.com",     type: "Achat ancien sans travaux", source: "Direct" },
-];
-
-// Map with a safe index signature for TS
+/* ---------- 2. Map of styles for known sources ---------- */
 const SOURCE_CLASSES: Record<Source, string> = {
   Direct: "bg-cyan-100 text-cyan-700",
   Apporteur: "bg-amber-100 text-amber-700",
@@ -46,19 +25,60 @@ const SOURCE_CLASSES: Record<Source, string> = {
   "Appel entrant": "bg-emerald-100 text-emerald-700",
 };
 
-type SourceBadgeProps = { value: Source | string };
+/* ---------- 3. Demo data ---------- */
+const DEMO: Row[] = [
+  {
+    ref: "2025-3364",
+    date: "2025-08-21 20:57:49",
+    client: "RAYLAUD Philippe",
+    phone: "0629095123",
+    email: "philippe.raylaud@hotmail.com",
+    type: "Achat ancien sans travaux",
+    source: "Apporteur",
+  },
+  {
+    ref: "2025-3363",
+    date: "2025-08-21 20:34:36",
+    client: "GULSES Irma",
+    phone: "06 11 23 23 55",
+    email: "irma.gulses@lafrance.fr",
+    type: "Achat ancien sans travaux",
+    source: "Direct",
+  },
+  {
+    ref: "2025-3359",
+    date: "2025-08-21 08:30:11",
+    client: "THOMAS Amina",
+    phone: "0801229036",
+    email: "amina.thomas26@live.fr",
+    type: "Achat ancien sans travaux",
+    source: "Appel entrant",
+  },
+  {
+    ref: "2025-3352",
+    date: "2025-08-21 09:11:12",
+    client: "BORDENAVE Luc",
+    phone: "0664728497",
+    email: "luc.bordenave@hotm.fr",
+    type: "Achat ancien sans travaux",
+    source: "2e Courtage",
+  },
+];
+
+/* ---------- 4. SourceBadge component ---------- */
+type SourceBadgeProps = { value: string };
 
 const SourceBadge: React.FC<SourceBadgeProps> = ({ value }) => {
   const cls =
     (SOURCE_CLASSES as Record<string, string>)[value] ??
     "bg-gray-100 text-gray-700";
+
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[11px] ${cls}`}>
-      {value}
-    </span>
+    <span className={`px-2 py-0.5 rounded-full text-[11px] ${cls}`}>{value}</span>
   );
 };
 
+/* ---------- 5. Table component ---------- */
 export default function ListProjetsTable() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
@@ -83,31 +103,49 @@ export default function ListProjetsTable() {
           <table className="min-w-full text-[13px]">
             <thead className="bg-cyan-700 text-white">
               <tr className="divide-x divide-white/30">
-                <th className="px-3 py-2 text-center font-semibold">Référence du dossier</th>
-                <th className="px-3 py-2 text-center font-semibold">Date de réception</th>
+                <th className="px-3 py-2 text-center font-semibold">
+                  Référence du dossier
+                </th>
+                <th className="px-3 py-2 text-center font-semibold">
+                  Date de réception
+                </th>
                 <th className="px-3 py-2 text-center font-semibold">Client</th>
-                <th className="px-3 py-2 text-center font-semibold">Numéro Téléphone</th>
+                <th className="px-3 py-2 text-center font-semibold">
+                  Numéro Téléphone
+                </th>
                 <th className="px-3 py-2 text-center font-semibold">Email</th>
                 <th className="px-3 py-2 text-center font-semibold">Type</th>
                 <th className="px-3 py-2 text-center font-semibold">Source</th>
-                <th className="px-3 py-2 text-center font-semibold w-[120px]">Action</th>
+                <th className="px-3 py-2 text-center font-semibold w-[120px]">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => (
                 <tr
                   key={`${r.ref}-${i}`}
-                  className={`${i % 2 ? "bg-cyan-50/40" : "bg-white"} hover:bg-cyan-50 transition-colors border-b border-cyan-100`}
+                  className={`${
+                    i % 2 ? "bg-cyan-50/40" : "bg-white"
+                  } hover:bg-cyan-50 transition-colors border-b border-cyan-100`}
                 >
                   <td className="px-3 py-2 text-gray-800">{r.ref}</td>
-                  <td className="px-3 py-2 text-gray-800 whitespace-nowrap">{r.date}</td>
+                  <td className="px-3 py-2 text-gray-800 whitespace-nowrap">
+                    {r.date}
+                  </td>
                   <td className="px-3 py-2">
-                    <a className="text-cyan-700 hover:underline font-medium" href="#">
+                    <a
+                      className="text-cyan-700 hover:underline font-medium"
+                      href="#"
+                    >
                       {r.client}
                     </a>
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    <a className="text-gray-800 hover:underline" href={`tel:${r.phone}`}>
+                    <a
+                      className="text-gray-800 hover:underline"
+                      href={`tel:${r.phone}`}
+                    >
                       {r.phone}
                     </a>
                   </td>
@@ -154,7 +192,7 @@ export default function ListProjetsTable() {
             <span className="underline decoration-cyan-600">{total}</span>
           </div>
 
-          {/* Center: 3-button pagination (‹ 1 ›) */}
+          {/* Center: pagination */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
