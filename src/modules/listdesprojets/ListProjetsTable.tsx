@@ -1,11 +1,24 @@
 "use client";
 
-
 import React, { useEffect, useMemo, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { FaWallet } from "react-icons/fa";
 
-const DEMO = [
+// Types
+type Source = "Direct" | "Apporteur" | "2e Courtage" | "Appel entrant";
+
+type Row = {
+  ref: string;
+  date: string;
+  client: string;
+  phone: string;
+  email: string;
+  type: string;
+  source: Source | string; // keep string to be tolerant for unknown values
+};
+
+// Demo data
+const DEMO: Row[] = [
   { ref: "2025-3364", date: "2025-08-21 20:57:49", client: "RAYLAUD Philippe",  phone: "0629095123", email: "philippe.raylaud@hotmail.com",   type: "Achat ancien sans travaux", source: "Apporteur" },
   { ref: "2025-3363", date: "2025-08-21 20:34:36", client: "GULSES Irma",       phone: "06 11 23 23 55", email: "irma.gulses@lafrance.fr",     type: "Achat ancien sans travaux", source: "Direct" },
   { ref: "2025-3362", date: "2025-08-21 19:44:22", client: "CECOLOU GUGUI ARMEL",phone:"0662774425",    email: "adouou@gmail.com",            type: "Achat ancien sans travaux", source: "Direct" },
@@ -25,15 +38,22 @@ const DEMO = [
   { ref: "2025-3350", date: "2025-08-21 08:27:16", client: "EL KAMALY Ibou",    phone: "0685196649",   email: "thouelkamily54@gmail.com",     type: "Achat ancien sans travaux", source: "Direct" },
 ];
 
-const SourceBadge = ({ value }) => {
-  const map = {
-    Direct: "bg-cyan-100 text-cyan-700",
-    Apporteur: "bg-amber-100 text-amber-700",
-    "2e Courtage": "bg-violet-100 text-violet-700",
-    "Appel entrant": "bg-emerald-100 text-emerald-700",
-  };
+// Map with a safe index signature for TS
+const SOURCE_CLASSES: Record<Source, string> = {
+  Direct: "bg-cyan-100 text-cyan-700",
+  Apporteur: "bg-amber-100 text-amber-700",
+  "2e Courtage": "bg-violet-100 text-violet-700",
+  "Appel entrant": "bg-emerald-100 text-emerald-700",
+};
+
+type SourceBadgeProps = { value: Source | string };
+
+const SourceBadge: React.FC<SourceBadgeProps> = ({ value }) => {
+  const cls =
+    (SOURCE_CLASSES as Record<string, string>)[value] ??
+    "bg-gray-100 text-gray-700";
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[11px] ${map[value] || "bg-gray-100 text-gray-700"}`}>
+    <span className={`px-2 py-0.5 rounded-full text-[11px] ${cls}`}>
       {value}
     </span>
   );
